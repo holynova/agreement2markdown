@@ -56,16 +56,16 @@ class AgreementConverter {
   // constructor() {
   //   this.outputDir = './output'
   // }
-  getFiles() {
+  //   getFiles() {
 
-    return [
-      '# hello',
-      `1. one
-2. two
-- 123
-- 234`,
-    ]
-  }
+  //     return [
+  //       '# hello',
+  //       `1. one
+  // 2. two
+  // - 123
+  // - 234`,
+  //     ]
+  //   }
 
   getOutputFileName() {
     let fileName = ''
@@ -85,12 +85,27 @@ class AgreementConverter {
   toMarkdown(str) {
     let clone = str
     let rules = [
-      { from: /\d/g, to: "sang " },
+      { from: /^\s+/mg, to: "" },
+      { from: /\s+\n/mg, to: "\n" },
+      { from: /\n+/mg, to: "  \n" },
+      { from: /^\d{1,2}、/mg, to: "1. " },
+      { from: /(?=^[^\s0-9]{1,2}、)/mg, to: "## " },
+      // { from: /\(\d{1,2}\)|（\d{1,2}）/mg, to: "\t\n1. " },
+      {
+        from: /\(\d{1,2}\)|（\d{1,2}）/mg,
+        to: str => `  \n${str}`
+      },
+
     ]
     for (let rule of rules) {
+      // log(rule)
+
       let { from, to } = rule
-      clone.replace(from, to)
+      clone = clone.replace(from, to)
     }
+    clone = `# ${clone}`
+    log(clone)
+
     return clone
   }
 
@@ -144,7 +159,7 @@ class AgreementConverter {
       this.convertOnce(f)
       log('完成 ' + f)
     }
-    log('完成')
+    log('全部完成')
   }
 }
 
