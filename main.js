@@ -85,6 +85,7 @@ class AgreementConverter {
   toMarkdown(str) {
     let clone = str
     let rules = [
+      { from: /^\s*/g, to: "# " },
       { from: /^\s+/mg, to: "" },
       { from: /\s+\n/mg, to: "\n" },
       { from: /\n+/mg, to: "  \n" },
@@ -103,8 +104,13 @@ class AgreementConverter {
       let { from, to } = rule
       clone = clone.replace(from, to)
     }
-    clone = `# ${clone}`
+    // clone = `# ${clone}`
+    log('----------------------------------------')
+    log('----------------------------------------')
     log(clone)
+    log('----------------------------------------')
+    log('----------------------------------------')
+
 
     return clone
   }
@@ -134,6 +140,7 @@ class AgreementConverter {
     return filename;
   }
   convertOnce(filename) {
+
     fileUtil.readFile(path.join(__dirname, this.inputDir, filename), 'utf-8')
       .then(text => {
         let md = this.toMarkdown(text)
@@ -141,8 +148,73 @@ class AgreementConverter {
         return html
       })
       .then(html => {
-        this.saveToFile(html)
-        return html
+        //         let all = `
+        // <!DOCTYPE html>
+        // <html lang="en">
+
+        // <head>
+        //   <meta charset="UTF-8">
+        //   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        //   <meta http-equiv="X-UA-Compatible" content="ie=edge">
+        //   <title>Document</title>
+        //   <style>
+        //     html {
+        //       font-size: 14px;
+        //       line-height: 180%;
+        //       text-align: justify;
+        //     }
+
+        //     html table {
+        //       border-collapse: collapse;
+        //       color: #3e3e3e;
+        //     }
+
+        //     html table,
+        //     html th,
+        //     html td {
+        //       border: 1px solid #3e3e3e;
+        //       font-size: 1rem;
+        //       padding: 1rem;
+        //     }
+
+        //     html body .wrapper {
+        //       margin: 0 auto;
+        //       padding: 2rem;
+        //       /* font-size: 0.8rem; */
+        //       color: #3e3e3e;
+        //       max-width: 800px;
+        //     }
+
+        //     html body .wrapper h1 {
+        //       font-size: 1.2rem;
+        //       color: #3367d6;
+        //       text-align: center;
+        //     }
+
+        //     html body .wrapper h2 {
+        //       font-size: 1.1rem;
+        //       color: #3367d6;
+        //       border-bottom: 1px solid #3367d6;
+        //       padding-bottom: 0.5rem;
+        //     }
+
+        //     html body .wrapper .footer {
+        //       text-align: right;
+        //     }
+        //   </style>
+        // </head>
+
+        // <body>
+        //   <div class="wrapper">
+        // ${html}
+        //   </div>
+        // </body>
+
+        // </html>
+        //         `
+        const fullHtml = `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta http-equiv="X-UA-Compatible" content="ie=edge"><title>Document</title><style>html {font-size: 14px;line-height: 180%;text-align: justify;}html table {border-collapse: collapse;color: #3e3e3e;}html table,html th,html td {border: 1px solid #3e3e3e;font-size: 1rem;padding: 1rem;}html body .wrapper {margin: 0 auto;padding: 2rem;/* font-size: 0.8rem; */color: #3e3e3e;max-width: 800px;}html body .wrapper h1 {font-size: 1.2rem;color: #3367d6;text-align: center;}html body .wrapper h2 {font-size: 1.1rem;color: #3367d6;border-bottom: 1px solid #3367d6;padding-bottom: 0.5rem;}html body .wrapper .footer {text-align: right;}</style></head><body><div class="wrapper">${html}</div></body></html>`
+        this.saveToFile(fullHtml)
+        return fullHtml
       })
       // .then(html => {
       //   log(html)
