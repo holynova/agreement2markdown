@@ -30,7 +30,7 @@ class AgreementConverter {
       outputDir: './output',
       outputExt: '.html',
       outputFileName: '',
-      outputFileNamePrefix: 'result',
+      outputFileNamePrefix: '',
 
     }
     let all = { ...defaultConfig, ...config }
@@ -67,19 +67,27 @@ class AgreementConverter {
   //     ]
   //   }
 
-  getOutputFileName() {
-    let fileName = ''
-    if (this.outputFileName) {
-      fileName = this.outputFileName + this.outputExt
+  getOutputFileName(originName) {
+    // let fileName = ''
+    // if (this.outputFileName) {
+    //   fileName = this.outputFileName + this.outputExt
+    // } else {
+    //   let now = dayjs(new Date()).format('_YYYYMMDD_HHmmss_SSS')
+    //   fileName = this.outputFileNamePrefix + now + this.outputExt
+    // }
+    // // let now = new Date().getTime()
+    let name = ''
+    if (originName) {
+      name = originName.split('.')[0]
     } else {
       let now = dayjs(new Date()).format('_YYYYMMDD_HHmmss_SSS')
-      fileName = this.outputFileNamePrefix + now + this.outputExt
+      name = now
     }
-    // let now = new Date().getTime()
-
-    let fullName = path.join(this.outputDir, fileName)
+    let fullName = path.join(this.outputDir, this.outputFileNamePrefix + name + this.outputExt)
     return fullName
   }
+
+
 
 
   toMarkdown(str) {
@@ -87,6 +95,7 @@ class AgreementConverter {
     let rules = [
       { from: /^\s*/g, to: "# " },
       { from: /^\s+/mg, to: "" },
+      { from: /\t/mg, to: "    " },
       { from: /\s+\n/mg, to: "\n" },
       { from: /\n+/mg, to: "  \n" },
       { from: /^\d{1,2}、/mg, to: "1. " },
@@ -94,8 +103,12 @@ class AgreementConverter {
       // { from: /\(\d{1,2}\)|（\d{1,2}）/mg, to: "\t\n1. " },
       {
         from: /\(\d{1,2}\)|（\d{1,2}）/mg,
-        to: str => `  \n${str}`
+        to: str => `  ${str}`
       },
+      {
+        from: /^第.{1,3}条/mg,
+        to: str => `## ${str}`
+      }
 
     ]
     for (let rule of rules) {
@@ -127,13 +140,13 @@ class AgreementConverter {
     return str
   }
 
-  saveToFile(data) {
+  saveToFile(data, originName = '') {
     //===============================
     if (!fs.existsSync(this.outputDir)) {
       fs.mkdirSync(this.outputDir)
     }
     // save(str, dir)
-    let filename = this.getOutputFileName()
+    let filename = this.getOutputFileName(originName)
     // let filename = __dirname + '/output/' + 'out.html'
     let dataStr = this.dataToStr(data)
     fileUtil.writeFile(filename, dataStr)
@@ -212,8 +225,8 @@ class AgreementConverter {
 
         // </html>
         //         `
-        const fullHtml = `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta http-equiv="X-UA-Compatible" content="ie=edge"><title>Document</title><style>html {font-size: 14px;line-height: 180%;text-align: justify;}html table {border-collapse: collapse;color: #3e3e3e;}html table,html th,html td {border: 1px solid #3e3e3e;font-size: 1rem;padding: 1rem;}html body .wrapper {margin: 0 auto;padding: 2rem;/* font-size: 0.8rem; */color: #3e3e3e;max-width: 800px;}html body .wrapper h1 {font-size: 1.2rem;color: #3367d6;text-align: center;}html body .wrapper h2 {font-size: 1.1rem;color: #3367d6;border-bottom: 1px solid #3367d6;padding-bottom: 0.5rem;}html body .wrapper .footer {text-align: right;}</style></head><body><div class="wrapper">${html}</div></body></html>`
-        this.saveToFile(fullHtml)
+        const fullHtml = `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta http-equiv="X-UA-Compatible" content="ie=edge"><title>Document</title><style>li,p,br {margin:0.4rem 0} html {font-size: 14px;line-height: 180%;text-align: justify;}html table {border-collapse: collapse;color: #3e3e3e;}html table,html th,html td {border: 1px solid #3e3e3e;font-size: 1rem;padding: 1rem;}html body .wrapper {margin: 0 auto;padding: 2rem;/* font-size: 0.8rem; */color: #3e3e3e;max-width: 800px;}html body .wrapper h1 {font-size: 1.2rem;color: #3367d6;text-align: center;}html body .wrapper h2 {font-size: 1.1rem;color: #3367d6;border-bottom: 1px solid #3367d6;padding-bottom: 0.5rem;}html body .wrapper .footer {text-align: right;}</style></head><body><div class="wrapper">${html}</div></body></html>`
+        this.saveToFile(fullHtml, filename)
         return fullHtml
       })
       // .then(html => {
